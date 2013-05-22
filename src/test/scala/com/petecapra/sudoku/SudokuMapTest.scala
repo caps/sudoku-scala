@@ -95,4 +95,73 @@ class SudokuMapTest extends FunSuite {
 
   }
 
+  test("map solve by elimination - one to fill") {
+
+    val numbers =
+      """145327698
+        |839654127
+        |672918543
+        |496185372
+        |218473956
+        |753296481
+        |367542819
+        |98476 235
+        |521839764""".stripMargin
+
+    val unsolved: SudokuMap = SudokuMap(numbers)
+    val solved = unsolved.solveByElimination
+
+    println(solved)
+
+    assert( solved.solved === true )
+
+  }
+
+  test("map solve by elimination - five to fill") {
+
+    val numbers =
+      """145327698
+        |83 654127
+        |672918543
+        |496185 72
+        |218473956
+        |7 3296481
+        |367542819
+        |98476 235
+        |52183976 """.stripMargin
+
+    val unsolved: SudokuMap = SudokuMap(numbers)
+    val solved = unsolved.solveByElimination
+
+    println(solved)
+
+    assert( solved.solved === true )
+
+  }
+
+  test("map solve by elimination - easy") {
+
+    val numbers =
+      """487-5--6-
+        |9--4----3
+        |2-6-895--
+        |--4-156--
+        |1----4-5-
+        |-782-----
+        |-----8-7-
+        |75-----3-
+        |-2--3741-""".stripMargin
+
+    val unsolved: SudokuMap = SudokuMap(numbers)
+
+    println(unsolved)
+
+    val solved = unsolved.solveByElimination
+
+    println(solved)
+
+    assert( solved.solved === true )
+
+  }
+
 }
