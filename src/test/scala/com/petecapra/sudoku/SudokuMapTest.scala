@@ -173,16 +173,57 @@ class SudokuMapTest extends FunSuite {
 
     val unsolved: SudokuMap = SudokuMap(numbers)
 
-    println(unsolved)
+    val solved = unsolved.solveByCellElimination.solveByGroupElimination
+
+    println(solved)
+    
+    assert( solved.solved === true )
+
+  }
+
+  test("solve inkala hardest") {
+    
+    val numbers = 
+      """85---24--
+        |72------9
+        |--4------
+        |---1-7--2
+        |3-5---9--
+        |-4-------
+        |----8--7-
+        |-17------
+        |----36-4-""".stripMargin
+
+    val unsolved: SudokuMap = SudokuMap(numbers)
 
     val solved = unsolved.solveByCellElimination.solveByGroupElimination
 
     println(solved)
-
-    println("Unsolved cells:")
-    solved.unsolvedCells foreach ( cell => println("Cell index: " + cell.index + ", remaining candidates: " + cell.candidates))
-
+    
     assert( solved.solved === true )
+
+  }
+  
+  test("solve norvig hardest") {
+
+    val numbers =
+      """-----6---
+         -59-----8
+         2----8---
+         -45------
+         --3------
+         --6--3-54
+         ---325--6
+         ---------
+         ---------""".stripMargin
+
+     val unsolved = SudokuMap(numbers)
+
+     val solved = unsolved.solveByCellElimination.solveByGroupElimination
+     
+     println(solved)
+
+     assert( solved.solved === true )
 
   }
 

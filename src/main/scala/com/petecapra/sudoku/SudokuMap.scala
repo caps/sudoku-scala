@@ -12,7 +12,7 @@ case class Cell(index: Int, candidates: Set[Int]) {
 
 case class SudokuMap(numbers: Vector[Cell]) {
 
-  def solveCell(cell: Cell, value: Int): SudokuMap = {
+  private def solveCell(cell: Cell, value: Int): SudokuMap = {
     val newCell: Cell = Cell(cell.index, Set(value))
     SudokuMap(numbers.updated(cell.index, newCell)).removeCandidateFromNeighbours(newCell, 0)
   }
@@ -21,33 +21,24 @@ case class SudokuMap(numbers: Vector[Cell]) {
    * Helper functions to provide appropriate vectors containing rows, columns and boxes
    */
   private def numbersByCol: Vector[Vector[Cell]] = numbers.groupBy(_.index % 9).values.toVector
-
   private def numbersByBox: Vector[Vector[Cell]] =
     numbers.groupBy(cell => ((cell.index / 27) * 3) + (cell.index % 9 / 3)).values.toVector
-
   private def numbersByRow: Vector[Vector[Cell]] = numbers.grouped(9).toVector
 
   private def removeCandidateFromCell(cellIndex: Int, candidate: Cell, depth: Int): SudokuMap = {
-    val cell: Cell = numbers(cellIndex)
-    val newCell: Cell = Cell(cellIndex, cell.candidates - candidate.number)
-    val updatedMap: SudokuMap = SudokuMap(numbers.updated(cell.index, newCell))
-    println(depthSpacing(depth) + "Removed candidate: " + candidate.number + " from cell with index: " + cell.index + " remaining candidates: " + newCell.candidates)
-    if (newCell.solved) {
-      println(depthSpacing(depth) + "Just solved cell with index: " + newCell.index + " and value: " + newCell.number)
+    val newCell: Cell = Cell(cellIndex, numbers(cellIndex).candidates - candidate.number)
+    val updatedMap: SudokuMap = SudokuMap(numbers.updated(cellIndex, newCell))
+    if (newCell.solved)
+      // TODO: use solveCell method here
       updatedMap.removeCandidateFromNeighbours(newCell, depth + 1)
-    } else
+    else
       updatedMap
   }
 
   private def removeCandidateFromNeighbours(cell: Cell, depth: Int): SudokuMap = {
-    val neighbours: Set[Cell] = getNeighbours(cell).filter { c =>
+    getNeighbours(cell).filter { c =>
       c.index != cell.index && !c.solved && c.candidates.contains(cell.number)
-    }
-    print(depthSpacing(depth) + "**** UNSOLVED NEIGHBOURS FOR CELL: " + cell.index + " => ")
-    neighbours foreach (neighbour => print(neighbour.index + ", "))
-    print("****")
-    println("")
-    neighbours.foldLeft(this)((current: SudokuMap, neighbour: Cell) => {
+    }.foldLeft(this)((current: SudokuMap, neighbour: Cell) => {
       current.removeCandidateFromCell(neighbour.index, cell, depth)
     })
   }
@@ -97,9 +88,7 @@ case class SudokuMap(numbers: Vector[Cell]) {
 
   }
 
-  def depthSpacing(depth: Int): String = depth + "." + (for {i <- 0 to depth} yield "  ").mkString
-
-  def unsolvedCells: Vector[Cell] = numbers.filterNot(_.solved)
+  private def unsolvedCells: Vector[Cell] = numbers.filterNot(_.solved)
 
   /**
    * print out the numbers in the table in a nice, neat format that's easy to read
