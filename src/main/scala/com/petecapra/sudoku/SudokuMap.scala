@@ -17,7 +17,6 @@ case class SudokuMap(numbers: Vector[Cell]) {
     SudokuMap(numbers.updated(cell.index, newCell)).removeCandidateFromNeighbours(newCell, 0)
   }
 
-
   /**
    * Helper functions to provide appropriate vectors containing rows, columns and boxes
    */
@@ -76,22 +75,25 @@ case class SudokuMap(numbers: Vector[Cell]) {
 
   def solveByGroupElimination: SudokuMap = {
 
-    // for each unsolved cell get all unsolved neighbours
-    val unsolvedNeighbours: Set[Cell] = for {
-      unsolvedCell:Cell <- unsolvedCells.toSet
-      unsolvedNeighbour <- getNeighbours(unsolvedCell).filterNot(_.solved)
-    } yield unsolvedNeighbour
+    // for each group
+    val groups: Vector[Vector[Cell]] = numbersByCol ++ numbersByRow ++ numbersByBox
 
-    // TODO: UGGGGLLYYY! AND WRONG!
-    // for cell and all neighbours group by candidates filter to groups where only one cell for candidate
-    val candidateGroups:Set[(Int, Cell)] = (for {
+    // filter out solved cells
+    val unsolvedGroups: Vector[Vector[Cell]] = for {
+      group <- groups
+    } yield group.filterNot(_.solved)
+    
+    // group by candidate number
+    val candidateGroups: Vector[(Int, Set[Cell])] = (for {
       number <- 1 to 9
-      unsolvedNeighbour <- unsolvedNeighbours
-      if (unsolvedNeighbour.candidates.contains(number))
-    } yield (number, unsolvedNeighbour)).groupBy(_._1).filter(_._1 == 1).head._2.toSet
+      unsolvedGroup <- unsolvedGroups
+    } yield (number, unsolvedGroup.filter(_.candidates.contains(number)).toSet)).toVector  
+
+    // and filter to numbers with only one cell
+    val candidateGroupsFilter: Vector[(Int, Set[Cell])] = candidateGroups.filter(_._2.size == 1)
 
     // solve those cells
-    candidateGroups.foldLeft(this)((current, cellPair) => current.solveCell(cellPair._2, cellPair._1))
+    candidateGroupsFilter.foldLeft(this)((current, cellPair) => current.solveCell(cellPair._2.head, cellPair._1))
 
   }
 
