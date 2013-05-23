@@ -105,11 +105,11 @@ class SudokuMapTest extends FunSuite {
         |218473956
         |753296481
         |367542819
-        |98476 235
+        |98476-235
         |521839764""".stripMargin
 
     val unsolved: SudokuMap = SudokuMap(numbers)
-    val solved = unsolved.solveByElimination
+    val solved = unsolved.solveByCellElimination
 
     println(solved)
 
@@ -121,17 +121,17 @@ class SudokuMapTest extends FunSuite {
 
     val numbers =
       """145327698
-        |83 654127
+        |83-654127
         |672918543
-        |496185 72
+        |496185-72
         |218473956
-        |7 3296481
+        |7-3296481
         |367542819
-        |98476 235
-        |52183976 """.stripMargin
+        |98476-235
+        |52183976-""".stripMargin
 
     val unsolved: SudokuMap = SudokuMap(numbers)
-    val solved = unsolved.solveByElimination
+    val solved = unsolved.solveByCellElimination
 
     println(solved)
 
@@ -139,7 +139,26 @@ class SudokuMapTest extends FunSuite {
 
   }
 
-  test("map solve by elimination - easy") {
+  test("map solve by elimination only") {
+
+    val numbers =
+      """--48---17
+        |67-9-----
+        |5-8-3---4
+        |3--74-1--
+        |-69---78-
+        |--1-69--5
+        |1---8-3-6
+        |-----6-91
+        |24---15--""".stripMargin
+
+    val unsolved: SudokuMap = SudokuMap(numbers)
+
+    assert(unsolved.solveByCellElimination.solved === true )
+
+  }
+
+  test("map solve by elimination - solve by cell elimination and solve by group elimination") {
 
     val numbers =
       """487-5--6-
@@ -156,9 +175,12 @@ class SudokuMapTest extends FunSuite {
 
     println(unsolved)
 
-    val solved = unsolved.solveByElimination
+    val solved = unsolved.solveByCellElimination.solveByGroupElimination
 
     println(solved)
+
+    println("Unsolved cells:")
+    solved.unsolvedCells foreach ( cell => println("Cell index: " + cell.index + ", remaining candidates: " + cell.candidates))
 
     assert( solved.solved === true )
 
