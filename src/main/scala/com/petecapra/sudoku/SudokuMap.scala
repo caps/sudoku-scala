@@ -3,9 +3,7 @@ package com.petecapra.sudoku
 case class Cell(index: Int, candidates: Set[Int]) {
 
   def solved: Boolean = candidates.size == 1
-
   def number: Int = candidates.head
-
   override def toString = if (solved) number.toString else " "
 
 }
@@ -14,7 +12,7 @@ case class SudokuMap(numbers: Vector[Cell]) {
 
   private def solveCell(cell: Cell, value: Int): SudokuMap = {
     val newCell: Cell = Cell(cell.index, Set(value))
-    SudokuMap(numbers.updated(cell.index, newCell)).removeCandidateFromNeighbours(newCell, 0)
+    SudokuMap(numbers.updated(cell.index, newCell)).removeCandidateFromNeighbours(newCell)
   }
 
   /**
@@ -25,21 +23,20 @@ case class SudokuMap(numbers: Vector[Cell]) {
     numbers.groupBy(cell => ((cell.index / 27) * 3) + (cell.index % 9 / 3)).values.toVector
   private def numbersByRow: Vector[Vector[Cell]] = numbers.grouped(9).toVector
 
-  private def removeCandidateFromCell(cellIndex: Int, candidate: Cell, depth: Int): SudokuMap = {
+  private def removeCandidateFromCell(cellIndex: Int, candidate: Cell): SudokuMap = {
     val newCell: Cell = Cell(cellIndex, numbers(cellIndex).candidates - candidate.number)
     val updatedMap: SudokuMap = SudokuMap(numbers.updated(cellIndex, newCell))
     if (newCell.solved)
-      // TODO: use solveCell method here
-      updatedMap.removeCandidateFromNeighbours(newCell, depth + 1)
+      updatedMap.removeCandidateFromNeighbours(newCell)
     else
       updatedMap
   }
 
-  private def removeCandidateFromNeighbours(cell: Cell, depth: Int): SudokuMap = {
+  private def removeCandidateFromNeighbours(cell: Cell): SudokuMap = {
     getNeighbours(cell).filter { c =>
       c.index != cell.index && !c.solved && c.candidates.contains(cell.number)
     }.foldLeft(this)((current: SudokuMap, neighbour: Cell) => {
-      current.removeCandidateFromCell(neighbour.index, cell, depth)
+      current.removeCandidateFromCell(neighbour.index, cell)
     })
   }
 
@@ -54,7 +51,7 @@ case class SudokuMap(numbers: Vector[Cell]) {
 
   def solveByCellElimination: SudokuMap = {
     numbers.filter(_.solved).foldLeft(this) {
-      (current: SudokuMap, solvedCell: Cell) => current.removeCandidateFromNeighbours(solvedCell, 0)
+      (current: SudokuMap, solvedCell: Cell) => current.removeCandidateFromNeighbours(solvedCell)
     }
   }
 
