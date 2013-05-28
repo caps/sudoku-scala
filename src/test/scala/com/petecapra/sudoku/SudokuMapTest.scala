@@ -199,7 +199,9 @@ class SudokuMapTest extends FunSuite {
     val solved = unsolved.solveByCellElimination.solveByGroupElimination
 
     println(solved)
-    
+   
+    println(solved.solveByGroupElimination)    
+ 
     assert( solved.solved === true )
 
   }
